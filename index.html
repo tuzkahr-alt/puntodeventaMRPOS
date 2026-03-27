@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetailPro ERP/POS</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="logo.png" alt="MRPOS Logo" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-target="dashboard">
+                    <button class="nav-btn" title="Dashboard">
+                        <i class="fas fa-chart-pie"></i>
+                    </button>
+                    <span class="tooltip">Dashboard</span>
+                </li>
+                <li class="nav-item" data-target="pos">
+                    <button class="nav-btn" title="Punto de Venta">
+                        <i class="fas fa-cash-register"></i>
+                    </button>
+                    <span class="tooltip">POS / Ventas</span>
+                </li>
+                <li class="nav-item" data-target="credits">
+                    <button class="nav-btn" title="Cobranzas y Créditos">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </button>
+                    <span class="tooltip">Cobranzas</span>
+                </li>
+                <li class="nav-item" data-target="inventory">
+                    <button class="nav-btn" title="Inventario">
+                        <i class="fas fa-box-open"></i>
+                    </button>
+                    <span class="tooltip">Inventario</span>
+                </li>
+            </ul>
+            <div class="nav-bottom">
+                <button class="nav-btn"><i class="fas fa-cog"></i></button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h1 id="current-page-title">Dashboard</h1>
+                    <p id="current-page-subtitle">Resumen general del negocio</p>
+                </div>
+                <div class="user-info">
+                    <div class="search-global">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Buscar folio, cliente...">
+                    </div>
+                    <div class="time" id="clock">12:00 PM</div>
+                    <div class="avatar">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Views -->
+            <div class="view-container">
+                
+                <!-- 1. DASHBOARD VIEW -->
+                <section id="dashboard" class="view active">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-blue-light"><i class="fas fa-dollar-sign text-blue"></i></div>
+                            <div class="kpi-data">
+                                <h3>Ventas del Día</h3>
+                                <p class="value" id="kpi-sales">$0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-orange-light"><i class="fas fa-file-invoice-dollar text-orange"></i></div>
+                            <div class="kpi-data">
+                                <h3>Total por Cobrar (Cuotas)</h3>
+                                <p class="value" id="kpi-credits">$0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon bg-red-light"><i class="fas fa-exclamation-triangle text-red"></i></div>
+                            <div class="kpi-data">
+                                <h3>Alertas de Stock</h3>
+                                <p class="value" id="kpi-stock">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-widgets">
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h2>Cuotas Vencidas / Alertas de Mora</h2>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="datagrid" id="table-alerts">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>RUT</th>
+                                            <th>Cuota / Venc.</th>
+                                            <th>Días Retraso</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="alerts-body">
+                                        <!-- Generado dinamicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. POS VIEW (VENTAS / PREVENTAS) -->
+                <section id="pos" class="view">
+                    <div class="pos-layout">
+                        <!-- Left Panel: Products -->
+                        <div class="pos-products">
+                            <div class="search-bar-modern">
+                                <i class="fas fa-barcode"></i>
+                                <input type="text" id="pos-search" placeholder="Escanear código o buscar producto...">
+                            </div>
+                            <div class="product-grid" id="pos-product-grid">
+                                <!-- Products rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Cart & Payment -->
+                        <div class="pos-cart">
+                            <div class="cart-header">
+                                <h2>Orden Actual</h2>
+                                <button class="btn-text" id="btn-clear-cart"><i class="fas fa-trash"></i> Limpiar</button>
+                            </div>
+                            
+                            <!-- Cliente Section -->
+                            <div class="client-selector">
+                                <div class="client-info" id="selected-client">
+                                    <i class="fas fa-user-circle"></i> Mostrar Cliente General
+                                </div>
+                                <button class="btn-icon" id="btn-search-client" title="Buscar Cliente"><i class="fas fa-search"></i></button>
+                                <button class="btn-icon" id="btn-add-client" title="Nuevo Cliente"><i class="fas fa-user-plus"></i></button>
+                            </div>
+
+                            <div class="cart-items" id="cart-items">
+                                <!-- Cart items -->
+                                <div class="empty-cart-msg">No hay productos en la orden.</div>
+                            </div>
+
+                            <div class="cart-totals">
+                                <div class="tot-row"><span>Subtotal:</span> <span id="cart-subtotal">$0</span></div>
+                                <div class="tot-row"><span>Descuento:</span> <span>$0</span></div>
+                                <div class="tot-row total"><span>Total:</span> <span id="cart-total">$0</span></div>
+                            </div>
+
+                            <div class="cart-actions">
+                                <button class="btn-action bg-orange" id="btn-presale">
+                                    <i class="fas fa-pause-circle"></i> Preventa
+                                </button>
+                                <button class="btn-action bg-blue" id="btn-pay">
+                                    <i class="fas fa-credit-card"></i> Pagar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. CREDITOS VIEW -->
+                <section id="credits" class="view">
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h2>Estado de Cuenta y Cuotas (Letras)</h2>
+                            <div class="search-bar-modern">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="credit-search" placeholder="Buscar por cliente o RUT...">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="datagrid" id="table-credits">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Venta Folio</th>
+                                        <th>Cuota</th>
+                                        <th>Vencimiento</th>
+                                        <th>Monto</th>
+                                        <th>Interés</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="credits-body">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                 <!-- 4. INVENTORY VIEW -->
+                 <section id="inventory" class="view">
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h2>Gestión de Inventario (Variantes)</h2>
+                            <button class="btn-primary"><i class="fas fa-plus"></i> Nuevo Producto</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="datagrid" id="table-inventory">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Nombre</th>
+                                        <th>Variantes (Talla/Color)</th>
+                                        <th>Precio</th>
+                                        <th>Stock Total</th>
+                                        <th>Opciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="modal-payment">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Procesar Pago</h2>
+                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-methods">
+                    <div class="method-card active" data-method="cash">
+                        <i class="fas fa-money-bill-wave"></i> Efectivo
+                    </div>
+                    <div class="method-card" data-method="card">
+                        <i class="fas fa-credit-card"></i> Tarjeta
+                    </div>
+                    <div class="method-card" data-method="transfer">
+                        <i class="fas fa-exchange-alt"></i> Transf.
+                    </div>
+                    <div class="method-card" data-method="credit">
+                        <i class="fas fa-file-signature"></i> Crédito / Letras
+                    </div>
+                </div>
+
+                <div id="credit-options" class="hidden">
+                    <h3 class="mt-4">Opciones de Crédito</h3>
+                    <div class="form-group">
+                        <label>Número de Cuotas:</label>
+                        <select id="credit-installments" class="form-control">
+                            <option value="1">1 Cuota (30 días)</option>
+                            <option value="3">3 Cuotas (30/60/90 días)</option>
+                            <option value="6">6 Cuotas</option>
+                        </select>
+                    </div>
+                    <div class="credit-warning hidden" id="credit-warning">
+                        <i class="fas fa-exclamation-circle"></i> Cliente superará su límite de crédito o tiene 3+ cuotas vencidas.
+                    </div>
+                </div>
+                
+                <div class="payment-summary mt-4">
+                    <h3>Total a Pagar: <span id="payment-total-display">$0</span></h3>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-close-modal">Cancelar</button>
+                <button class="btn-primary" id="btn-confirm-payment">Confirmar Pago</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Client/Search Client Modal -->
+    <div class="modal-overlay" id="modal-client">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Seleccionar / Nuevo Cliente</h2>
+                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <div class="tab active" data-tab="search">Buscar</div>
+                    <div class="tab" data-tab="new">Nuevo</div>
+                </div>
+                
+                <div id="tab-search" class="tab-content active mt-2">
+                    <input type="text" id="search-client-input" class="form-control" placeholder="RUT o Nombre...">
+                    <ul class="client-list mt-2" id="client-search-results">
+                        <!-- list items -->
+                    </ul>
+                </div>
+
+                <div id="tab-new" class="tab-content mt-2 hidden">
+                    <div class="form-group">
+                        <label>RUT:</label>
+                        <input type="text" class="form-control" id="new-client-rut" placeholder="Ej: 11.111.111-1">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre / Razón Social:</label>
+                        <input type="text" class="form-control" id="new-client-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Giro comercial:</label>
+                        <input type="text" class="form-control" id="new-client-giro">
+                    </div>
+                    <div class="form-group">
+                        <label>Límite de Crédito Autorizado:</label>
+                        <input type="number" class="form-control" id="new-client-limit" value="100000">
+                    </div>
+                    <button class="btn-primary w-100 mt-2" id="btn-save-client">Guardar Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
