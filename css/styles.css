@@ -82,12 +82,30 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.logo-img {
-    width: 60px;
-    height: auto;
-    object-fit: contain;
+.mrpos-logo-container {
     margin-bottom: 2.5rem;
-    display: block;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.mrpos-logo {
+    display: flex;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem; /* Letras ajustadas a la barra lateral de 80px */
+    letter-spacing: -0.05em;
+}
+.mrpos-logo .mr-box {
+    background-color: #1a73e8; /* Azul MRPOS */
+    color: white;
+    padding: 0.2rem 0.2rem;
+    line-height: 1;
+}
+.mrpos-logo .pos-text {
+    color: #1a73e8;
+    padding-left: 0.1rem;
+    line-height: 1;
 }
 
 .nav-menu {

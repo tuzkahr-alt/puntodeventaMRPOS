@@ -14,8 +14,10 @@
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <nav class="sidebar">
-            <div class="logo">
-                <img src="logo.png" alt="MRPOS Logo" class="logo-img">
+            <div class="mrpos-logo-container">
+                <div class="mrpos-logo">
+                    <span class="mr-box">MR</span><span class="pos-text">POS</span>
+                </div>
             </div>
             <ul class="nav-menu">
                 <li class="nav-item active" data-target="dashboard">
@@ -53,8 +55,8 @@
             <!-- Header -->
             <header class="topbar">
                 <div class="page-title">
-                    <h1 id="current-page-title">Dashboard</h1>
-                    <p id="current-page-subtitle">Resumen general del negocio</p>
+                    <h1 id="current-page-title">Punto de Venta</h1>
+                    <p id="current-page-subtitle">Ventas y Preventas</p>
                 </div>
                 <div class="user-info">
                     <div class="search-global">
@@ -72,7 +74,7 @@
             <div class="view-container">
                 
                 <!-- 1. DASHBOARD VIEW -->
-                <section id="dashboard" class="view active">
+                <section id="dashboard" class="view">
                     <div class="kpi-grid">
                         <div class="kpi-card">
                             <div class="kpi-icon bg-blue-light"><i class="fas fa-dollar-sign text-blue"></i></div>
@@ -124,7 +126,7 @@
                 </section>
 
                 <!-- 2. POS VIEW (VENTAS / PREVENTAS) -->
-                <section id="pos" class="view">
+                <section id="pos" class="view active">
                     <div class="pos-layout">
                         <!-- Left Panel: Products -->
                         <div class="pos-products">
