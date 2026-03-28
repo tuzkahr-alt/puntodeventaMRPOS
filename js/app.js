@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Init
-    loadDashboard();
+    document.querySelector('.nav-item[data-target="pos"]').click();
     renderPOSProducts(db.getProducts());
     renderCart();
     updateClientUI();
