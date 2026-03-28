@@ -35,8 +35,16 @@ const generateGroceries = () => {
 const INITIAL_DATA = {
     products: generateGroceries(),
     clients: [
-        { id: generateId(), rut: '11.111.111-1', name: 'Juan Pérez', giro: 'Particular', limit_credit: 150000, debt: 45000 },
-        { id: generateId(), rut: '22.222.222-2', name: 'Comercial XYZ', giro: 'Retail', limit_credit: 500000, debt: 0 }
+        { id: generateId(), rut: '11.111.111-1', name: 'Juan Ignacio Pérez', giro: 'Particular', limit_credit: 150000, debt: 45000 },
+        { id: generateId(), rut: '22.222.222-2', name: 'Comercial La Florida SpA', giro: 'Retail', limit_credit: 500000, debt: 0 },
+        { id: generateId(), rut: '15.345.678-K', name: 'María González López', giro: 'Particular', limit_credit: 100000, debt: 0 },
+        { id: generateId(), rut: '09.876.543-2', name: 'Constructora Eloísa Ltda.', giro: 'Construcción', limit_credit: 1500000, debt: 250000 },
+        { id: generateId(), rut: '18.123.456-7', name: 'Carlos Díaz Valdés', giro: 'Particular', limit_credit: 80000, debt: 75000 },
+        { id: generateId(), rut: '12.987.654-3', name: 'Minimarket El Sol', giro: 'Comercio', limit_credit: 300000, debt: 15000 },
+        { id: generateId(), rut: '19.456.789-0', name: 'Ana Silva Mendoza', giro: 'Particular', limit_credit: 120000, debt: 0 },
+        { id: generateId(), rut: '76.543.210-9', name: 'Panadería San Juan EIRL', giro: 'Panadería', limit_credit: 800000, debt: 0 },
+        { id: generateId(), rut: '14.222.333-5', name: 'Pedro Morales Rojas', giro: 'Particular', limit_credit: 50000, debt: 65000 },
+        { id: generateId(), rut: '17.654.321-4', name: 'Camila Soto Figueroa', giro: 'Particular', limit_credit: 200000, debt: 0 }
     ],
     sales: [],
     quotas: [],

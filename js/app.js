@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const renderPOSProducts = (products) => {
         posProductGrid.innerHTML = '';
-        products.slice(0, 50).forEach(p => {
+        products.slice(0, 10).forEach(p => {
             const div = document.createElement('div');
             div.className = 'product-card';
             div.innerHTML = `
