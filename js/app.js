@@ -170,6 +170,30 @@ document.addEventListener('DOMContentLoaded', () => {
         db.data.providers.forEach(p => pList.innerHTML += `<li>${p.name}</li>`);
         openModal('modal-settings');
     };
+    document.getElementById('btn-save-product').onclick = () => {
+        const name = document.getElementById('new-prod-name').value;
+        const sku = document.getElementById('new-prod-sku').value;
+        const price = parseInt(document.getElementById('new-prod-price').value || 0);
+        
+        if(!name || !sku || price <= 0) return alert("Nombre, SKU y Precio son obligatorios");
+
+        const p = { 
+            name: name,
+            sku: sku,
+            talla: document.getElementById('new-prod-talla').value || 'U',
+            genero: document.getElementById('new-prod-genero').value || 'Unisex',
+            price: price,
+            stock: parseInt(document.getElementById('new-prod-stock').value || 0),
+            brand: document.getElementById('new-prod-brand').value || '',
+            provider: document.getElementById('new-prod-prov').value || 'General'
+        };
+        
+        db.addProduct(p);
+        closeModal('modal-product');
+        loadInventory();
+        renderPOSGrid(); // ¡IMPORTANTE: Refrescar POS para ver el nuevo producto!
+        alert("Producto agregado exitosamente.");
+    };
     document.getElementById('btn-save-provider').onclick = () => {
         const n = document.getElementById('new-provider-name').value;
         if(n) { db.addProvider({name: n}); document.getElementById('btn-settings').click(); }
