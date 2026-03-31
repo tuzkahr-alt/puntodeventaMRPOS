@@ -1,0 +1,14 @@
+{
+  "name": "MrPOS ERP Premium",
+  "short_name": "MrPOS",
+  "name_es": "MrPOS Sistema ERP",
+  "description": "Sistema de Gestión y Punto de Venta de Alta Performance",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "https://ui-avatars.com/api/?name=MRP&background=2563eb&color=fff&size=192", "type": "image/png", "sizes": "192x192" },
+    { "src": "https://ui-avatars.com/api/?name=MRPOS&background=2563eb&color=fff&size=512", "type": "image/png", "sizes": "512x512" }
+  ]
+}

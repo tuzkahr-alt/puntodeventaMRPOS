@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RetailPro ERP/POS - MRPOS Premium</title>
+    <title>MrPOS ERP - Maestro de Productos Premium</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -23,387 +23,241 @@
                 </div>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item" data-target="dashboard">
-                    <button class="nav-btn" title="Dashboard">
-                        <i class="fas fa-chart-pie"></i>
-                    </button>
-                    <span class="tooltip">Dashboard</span>
-                </li>
-                <li class="nav-item active" data-target="pos">
-                    <button class="nav-btn" title="Punto de Venta">
-                        <i class="fas fa-cash-register"></i>
-                    </button>
-                    <span class="tooltip">POS / Ventas</span>
-                </li>
-                <li class="nav-item" data-target="credits">
-                    <button class="nav-btn" title="Cobranzas y Créditos">
-                        <i class="fas fa-hand-holding-dollar"></i>
-                    </button>
-                    <span class="tooltip">Cobranzas</span>
-                </li>
-                <li class="nav-item" data-target="inventory">
-                    <button class="nav-btn" title="Inventario">
-                        <i class="fas fa-box-open"></i>
-                    </button>
-                    <span class="tooltip">Inventario</span>
-                </li>
-                <li class="nav-item" data-target="reports">
-                    <button class="nav-btn" title="Informes y Reportes">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </button>
-                    <span class="tooltip">Informes</span>
-                </li>
+                <li class="nav-item" data-target="dashboard"><button class="nav-btn"><i class="fas fa-chart-line"></i></button></li>
+                <li class="nav-item active" data-target="pos"><button class="nav-btn"><i class="fas fa-cash-register"></i></button></li>
+                <li class="nav-item" data-target="credits"><button class="nav-btn"><i class="fas fa-hand-holding-dollar"></i></button></li>
+                <li class="nav-item" data-target="inventory"><button class="nav-btn"><i class="fas fa-boxes-stacked"></i></button></li>
+                <li class="nav-item" data-target="reports"><button class="nav-btn"><i class="fas fa-file-invoice"></i></button></li>
                 <li class="nav-item" data-target="workers">
                     <button class="nav-btn" title="Cajeros y Personal">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-user-gear"></i>
                     </button>
                     <span class="tooltip">Gestión Cajeros</span>
                 </li>
             </ul>
             <div class="nav-bottom">
-                <button class="nav-btn" id="btn-settings" title="Configuración"><i class="fas fa-cog"></i></button>
+                <button class="nav-btn hidden" id="btn-pwa-install" title="Instalar en Android/Móvil" style="color:#2563eb; background:rgba(37, 99, 235, 0.1);">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="nav-btn" id="btn-settings" title="Configuración"><i class="fas fa-gears"></i></button>
             </div>
         </nav>
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Header -->
             <header class="topbar">
                 <div class="page-title">
                     <h1 id="current-page-title">Punto de Venta</h1>
-                    <p id="current-page-subtitle">Ventas y Preventas</p>
+                    <p id="current-page-subtitle">Panel de Control MrPOS</p>
                 </div>
                 <div class="user-info">
                     <div class="search-global">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="global-search" placeholder="Buscar folio, cliente...">
+                        <input type="text" id="global-search" placeholder="Folio Venta o Cliente...">
                         <div id="global-search-results" class="autocomplete-dropdown hidden"></div>
                     </div>
                     <div class="time" id="clock">12:00 PM</div>
-                    <div class="avatar">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff" alt="User">
-                    </div>
+                    <div class="avatar"><img src="" alt="User"></div>
                 </div>
             </header>
 
-            <!-- Views -->
             <div class="view-container">
-                
-                <!-- 1. DASHBOARD VIEW -->
-                <section id="dashboard" class="view">
-                    <div class="kpi-grid">
-                        <div class="kpi-card">
-                            <div class="kpi-icon bg-blue-light"><i class="fas fa-dollar-sign text-blue"></i></div>
-                            <div class="kpi-data">
-                                <h3>Ventas del Día</h3>
-                                <p class="value" id="kpi-sales">$0</p>
-                            </div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-icon bg-orange-light"><i class="fas fa-file-invoice-dollar text-orange"></i></div>
-                            <div class="kpi-data">
-                                <h3>Total por Cobrar (Cuotas)</h3>
-                                <p class="value" id="kpi-credits">$0</p>
-                            </div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-icon bg-red-light"><i class="fas fa-exclamation-triangle text-red"></i></div>
-                            <div class="kpi-data">
-                                <h3>Alertas de Stock</h3>
-                                <p class="value" id="kpi-stock">0</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-widgets" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
-                        <div class="widget">
-                            <div class="widget-header">
-                                <h2>Top 5 Productos Más Vendidos</h2>
-                            </div>
-                            <div style="height: 250px;">
-                                <canvas id="chartSales"></canvas>
-                            </div>
-                        </div>
-                        <div class="widget" style="display: flex; flex-direction: column;">
-                            <div class="widget-header">
-                                <h2>Cuotas Vencidas / Alertas de Mora</h2>
-                            </div>
-                            <div class="table-responsive" style="flex: 1;">
-                                <table class="datagrid" id="table-alerts">
-                                    <thead>
-                                        <tr>
-                                            <th>Cliente</th>
-                                            <th>Letra / Venc.</th>
-                                            <th>Estado</th>
-                                            <th>Monto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="alerts-body">
-                                        <!-- Generado dinamicamente -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2. POS VIEW (VENTAS / PREVENTAS) -->
+                <!-- POS VIEW -->
                 <section id="pos" class="view active">
                     <div class="pos-layout">
-                        <!-- Left Panel: Products -->
                         <div class="pos-products">
                             <div class="search-bar-modern">
                                 <i class="fas fa-barcode"></i>
-                                <input type="text" id="pos-search" placeholder="Escanear código o buscar producto..." autocomplete="off">
+                                <input type="text" id="pos-search" placeholder="Buscar por Nombre o SKU..." autocomplete="off">
                                 <div id="pos-search-results" class="autocomplete-dropdown hidden"></div>
                             </div>
                             <div class="product-grid" id="pos-product-grid">
-                                <!-- Products rendered here -->
+                                <!-- Solo 6 favoritos -->
                             </div>
                         </div>
-
-                        <!-- Right Panel: Cart & Payment -->
                         <div class="pos-cart">
-                            <div class="cart-header">
-                                <h2>Orden Actual</h2>
-                                <button class="btn-text" id="btn-clear-cart"><i class="fas fa-trash"></i> Limpiar</button>
-                            </div>
-                            
-                            <!-- Cliente Section -->
+                            <div class="cart-header"><h2>Orden de Venta</h2><button class="btn-text" id="btn-clear-cart"><i class="fas fa-trash"></i></button></div>
                             <div class="client-selector">
-                                <div class="client-info" id="selected-client">
-                                    <i class="fas fa-user-circle"></i> Mostrar Cliente General
-                                </div>
+                                <div class="client-info" id="selected-client"><i class="fas fa-user-circle"></i> Cliente General</div>
                                 <div class="client-actions">
-                                    <button class="btn-icon" id="btn-search-client" title="Buscar Cliente"><i class="fas fa-search"></i></button>
-                                    <button class="btn-icon" id="btn-add-client" title="Nuevo Cliente"><i class="fas fa-user-plus"></i></button>
+                                    <button class="btn-icon" id="btn-search-client"><i class="fas fa-search"></i></button>
+                                    <button class="btn-icon" id="btn-add-client"><i class="fas fa-user-plus"></i></button>
                                 </div>
                             </div>
-
-                            <div class="cart-items" id="cart-items">
-                                <!-- Cart items -->
-                                <div class="empty-cart-msg">No hay productos en la orden.</div>
-                            </div>
-
+                            <div class="cart-items" id="cart-items"><div class="empty-cart-msg">Vacío</div></div>
                             <div class="cart-totals">
                                 <div class="tot-row"><span>Subtotal:</span> <span id="cart-subtotal">$0</span></div>
-                                <div class="tot-row"><span>Descuento:</span> <span>$0</span></div>
                                 <div class="tot-row total"><span>Total:</span> <span id="cart-total">$0</span></div>
                             </div>
-
                             <div class="cart-actions">
-                                <button class="btn-action bg-orange" id="btn-presale">
-                                    <i class="fas fa-pause-circle"></i> Preventa
-                                </button>
-                                <button class="btn-action bg-blue" id="btn-pay">
-                                    <i class="fas fa-credit-card"></i> Pagar
-                                </button>
+                                <button class="btn-action bg-orange" id="btn-presale">Preventa</button>
+                                <button class="btn-action bg-blue" id="btn-pay">Pagar</button>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- 3. CREDITOS VIEW -->
-                <section id="credits" class="view">
-                    <div class="widget">
-                        <div class="widget-header">
-                            <h2>Estado de Cuenta y Letras de Cambio</h2>
-                            <div class="search-bar-modern">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="credit-search" placeholder="Buscar por cliente o RUT...">
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="datagrid" id="table-credits">
-                                <thead>
-                                    <tr>
-                                        <th>Cliente</th>
-                                        <th>Folio Venta</th>
-                                        <th>Letra ID</th>
-                                        <th>Vencimiento</th>
-                                        <th>Monto</th>
-                                        <th>Interés</th>
-                                        <th>Estado</th>
-                                        <th>Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="credits-body">
-                                    <!-- Rendered dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
+                <section id="dashboard" class="view">
+                    <div class="kpi-grid">
+                        <div class="kpi-card"><div class="kpi-data"><h3>Hoy</h3><p class="value" id="kpi-sales">$0</p></div></div>
+                        <div class="kpi-card"><div class="kpi-data"><h3>Crédito</h3><p class="value" id="kpi-credits">$0</p></div></div>
+                        <div class="kpi-card"><div class="kpi-data"><h3>Stock Bajo</h3><p class="value" id="kpi-stock">0</p></div></div>
                     </div>
+                    <div class="widget mt-4"><canvas id="chartSales" style="height:300px;"></canvas></div>
                 </section>
 
-                 <!-- 4. INVENTORY VIEW -->
-                 <section id="inventory" class="view">
+                <section id="inventory" class="view">
                     <div class="widget">
-                        <div class="widget-header">
-                            <h2>Gestión de Inventario (Maestro Artículos)</h2>
-                            <button class="btn-primary" id="btn-open-new-product"><i class="fas fa-plus"></i> Nuevo Producto</button>
-                        </div>
+                        <div class="widget-header"><h2>Maestro de Artículos</h2><button class="btn-primary" id="btn-open-new-product">Nuevo Producto</button></div>
                         <div class="table-responsive">
                             <table class="datagrid" id="table-inventory">
-                                <thead>
-                                    <tr>
-                                        <th>SKU</th>
-                                        <th>Descripción</th>
-                                        <th>Talla/Gén.</th>
-                                        <th>Precio</th>
-                                        <th>Stock</th>
-                                        <th>Opciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inventory-body">
-                                </tbody>
+                                <thead><tr><th>Código</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Acción</th></tr></thead>
+                                <tbody id="inventory-body"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- 5. WORKERS VIEW -->
+                <section id="credits" class="view">
+                    <div class="widget">
+                        <div class="widget-header"><h2>Letras de Cambio</h2><input type="text" id="credit-search" placeholder="RUT Cliente..." class="form-control" style="width:250px;"></div>
+                        <div class="table-responsive"><table class="datagrid">
+                            <thead><tr><th>Cliente</th><th>Folio</th><th>Letra</th><th>Monto</th><th>Estado</th><th>Pago</th></tr></thead>
+                            <tbody id="credits-body"></tbody>
+                        </table></div>
+                    </div>
+                </section>
+
                 <section id="workers" class="view">
                     <div class="widget">
-                        <div class="widget-header">
-                            <h2>Gestión de Cajeros (Instancias Aisladas)</h2>
-                            <button class="btn-primary" id="btn-new-worker"><i class="fas fa-user-plus"></i> Agregar Cajero</button>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="datagrid" id="table-workers">
-                                <thead>
-                                    <tr>
-                                        <th>ID Cajero</th>
-                                        <th>Nombre Completo</th>
-                                        <th>Instancia DB Activa</th>
-                                        <th>Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="workers-body">
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="widget-header"><h2>Cajeros Autorizados</h2><button class="btn-primary" id="btn-new-worker">Agregar Cajero</button></div>
+                        <div class="table-responsive"><table class="datagrid">
+                            <thead><tr><th>ID</th><th>Nombre</th><th>Acceso</th><th>Estatus</th></tr></thead>
+                            <tbody id="workers-body"></tbody>
+                        </table></div>
                     </div>
                 </section>
 
-                <!-- 6. REPORTS VIEW -->
                 <section id="reports" class="view">
-                    <div class="kpi-grid" style="margin-bottom: 1.5rem;">
-                        <div class="kpi-card" style="flex:1;">
-                            <div class="kpi-data">
-                                <h3>Gráficos y Resumen Operativo</h3>
-                                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                                    <button class="btn-primary" id="btn-export-pdf" style="background:#e3342f;"><i class="fas fa-file-pdf"></i> PDF</button>
-                                    <button class="btn-primary" id="btn-export-excel" style="background:#38c172;"><i class="fas fa-file-excel"></i> Excel</button>
-                        <div class="kpi-card" style="flex:1;">
-                             <label>Seleccionar Tipo de Informe:</label>
-                                <select id="report-type" class="form-control" style="margin-top:0.5rem;">
-                                    <option value="sales_day">Ventas por Día (Resumen)</option>
-                                    <option value="sales_week">Ventas por Semana</option>
-                                    <option value="sales_month">Ventas por Mes</option>
-                                    <option value="sales_product">Ventas por Producto</option>
-                                    <option value="sales_category">Ventas por Categoría</option>
-                                    <option value="sales_cashier">Ventas por Caja (Cajeros)</option>
-                                    <option value="sales_provider">Ventas por Proveedor</option>
-                                    <option value="sales_general">Historial General de Ventas</option>
-                                </select>
-                           <button class="btn-action bg-blue w-100 mt-2" id="btn-generate-report"><i class="fas fa-sync-alt"></i> Generar Datos</button>
-                        </div>
-                    </div>
-                    
-                    <div class="widget">
-                        <div class="widget-header">
-                            <h2 id="report-title">Vista Previa del Informe</h2>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="datagrid" id="table-reports">
-                                <thead id="report-head"></thead>
-                                <tbody id="report-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-widgets mt-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <div class="widget">
-                            <div class="widget-header"><h2>Resumen Diario</h2></div>
-                            <div style="height: 300px;"><canvas id="chartDaily"></canvas></div>
-                        </div>
-                        <div class="widget">
-                            <div class="widget-header"><h2>Resumen Semanal</h2></div>
-                            <div style="height: 300px;"><canvas id="chartWeekly"></canvas></div>
-                        </div>
-                    </div>
+                     <div class="widget">
+                         <div class="widget-header">
+                            <h2>Centro de Reportes</h2>
+                            <select id="report-type" class="form-control" style="width:200px;">
+                                <option value="sales_day">Por Día</option>
+                                <option value="sales_product">Por Producto</option>
+                                <option value="sales_provider">Por Proveedor</option>
+                                <option value="sales_cashier">Por Caja</option>
+                            </select>
+                            <button id="btn-generate-report" class="btn-primary">Generar</button>
+                         </div>
+                         <div id="report-container" class="mt-4"><table class="datagrid"><thead id="report-head"></thead><tbody id="report-body"></tbody></table></div>
+                         <div class="dashboard-widgets mt-4" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="widget"><canvas id="chartDaily"></canvas></div>
+                            <div class="widget"><canvas id="chartWeekly"></canvas></div>
+                         </div>
+                     </div>
                 </section>
-
             </div>
         </main>
     </div>
 
-    <!-- Modals -->
-    <!-- Payment Modal -->
-    <div class="modal-overlay" id="modal-payment">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Procesar Pago</h2>
+    <!-- MODAL MAESTRO PRODUCTOS (REDISEÑO SEGÚN IMAGEN) -->
+    <div class="modal-overlay" id="modal-product">
+        <div class="modal" style="width: 900px; max-width: 95%;">
+            <div class="modal-header" style="background:#f0f0f0; border-bottom:1px solid #ccc;">
+                <h2 style="font-size:1.1rem; color:#444;"><i class="fas fa-cube"></i> Maestro Productos</h2>
                 <button class="btn-close-modal"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <div class="payment-methods">
-                    <div class="method-card active" data-method="cash"><i class="fas fa-money-bill-wave"></i> Efectivo</div>
-                    <div class="method-card" data-method="card"><i class="fas fa-credit-card"></i> Tarjeta</div>
-                    <div class="method-card" data-method="transfer"><i class="fas fa-exchange-alt"></i> Transf.</div>
-                    <div class="method-card" data-method="letras"><i class="fas fa-file-invoice"></i> Letras de Cambio</div>
-                </div>
-
-                <div id="letras-options" class="hidden">
-                    <h3 class="mt-4" style="color:#1a73e8;"><i class="fas fa-file-invoice"></i> Letras Correlativas A, B, C...</h3>
-                    <div class="form-group">
-                        <label>Plazo de Cuotas:</label>
-                        <select id="letras-n-cuotas" class="form-control">
-                            <option value="1">1 Letra (30 días)</option>
-                            <option value="2">2 Letras (30/60 días)</option>
-                            <option value="3" selected>3 Letras (30/60/90 días)</option>
-                            <option value="6">6 Letras</option>
-                        </select>
+            <div class="modal-body" style="padding:1.5rem; background:#f9f9f9; font-size:0.85rem;">
+                <div class="maestro-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+                    <!-- Bloque Izquierdo -->
+                    <div class="maestro-left">
+                        <div class="form-row" style="display:flex; align-items:center; margin-bottom:10px;">
+                            <label style="width:120px;">Codigo</label>
+                            <input type="text" id="m-codigo" class="form-control" style="width:200px;">
+                        </div>
+                        <div class="form-row" style="display:flex; align-items:center; margin-bottom:10px;">
+                            <label style="width:120px;">Descripcion</label>
+                            <input type="text" id="m-desc" class="form-control" style="flex:1;">
+                        </div>
+                        <div class="form-row" style="display:flex; align-items:center; margin-bottom:10px;">
+                            <label style="width:120px;">Categoria/Depto</label>
+                            <select id="m-cat" class="form-control" style="flex:1;"><option value="General">General</option></select>
+                        </div>
+                        <div class="form-row" style="display:flex; align-items:center; margin-bottom:10px;">
+                            <label style="width:120px;">Familia</label>
+                            <select id="m-fam" class="form-control" style="flex:1;"><option value="General">General</option></select>
+                        </div>
+                        <div class="form-row" style="display:flex; align-items:center; margin-bottom:10px;">
+                            <label style="width:120px;">Tipo Prod.</label>
+                            <select id="m-tipo" class="form-control" style="flex:1;"><option value="Normal">Normal</option><option value="Servicio">Servicio</option></select>
+                        </div>
+                        <div class="form-row" style="display:flex; flex-direction:column; margin-top:15px;">
+                            <label>Observaciones</label>
+                            <textarea id="m-obs" class="form-control" style="height:80px; margin-top:5px;"></textarea>
+                        </div>
                     </div>
-                    <div id="letras-preview" class="widget-light mt-2" style="font-size: 0.8rem; padding: 10px; background: #f0f7ff;">
-                        <!-- Preview -->
-                    </div>
-                    <div class="credit-warning hidden" id="letras-warning">
-                        <i class="fas fa-exclamation-triangle"></i> <span id="letras-warning-text"></span>
+                    <!-- Bloque Derecho (Precios y Stock) -->
+                    <div class="maestro-right">
+                        <fieldset style="border:1px solid #ddd; padding:10px; border-radius:4px; margin-bottom:15px;">
+                            <legend style="padding:0 5px; font-weight:bold; color:#2563eb;">Precios</legend>
+                            <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:5px;">
+                                <label>P. Venta $</label><input type="number" id="m-pventa" class="form-control">
+                                <label>Margen %</label><input type="number" id="m-margen" class="form-control">
+                                <label>U.x Oferta</label><input type="number" id="m-uoferta" class="form-control">
+                                <label>P. Oferta $</label><input type="number" id="m-poferta" class="form-control">
+                            </div>
+                        </fieldset>
+                        <div class="form-row" style="display:flex; align-items:center; margin-bottom:10px;">
+                            <label style="width:100px;">Impto. Adic.</label>
+                            <select id="m-impto" class="form-control" style="flex:1;"><option value="0">0%</option><option value="19">19% IVA</option></select>
+                        </div>
+                        <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                            <div><label>Unid/Vta</label><input type="text" id="m-uvta" class="form-control" value="1"></div>
+                            <div><label>Unid/Caja</label><input type="text" id="m-ucaja" class="form-control" value="1"></div>
+                        </div>
+                        <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#eee; padding:10px; border-radius:4px;">
+                            <div><label>Stock Crit.</label><input type="number" id="m-scrit" class="form-control" value="5"></div>
+                            <div><label>Stock Act.</label><input type="number" id="m-sact" class="form-control" value="0"></div>
+                        </div>
+                        <div class="form-row" style="display:flex; gap:15px;">
+                            <label><input type="checkbox" id="m-activo" checked> Activo</label>
+                            <label><input type="checkbox" id="m-iva" checked> IVA</label>
+                        </div>
                     </div>
                 </div>
-
-                <div id="cash-options" class="mt-4">
-                    <div class="form-group">
-                        <label>Efectivo Recibido (Presiona ENTER para vender):</label>
-                        <input type="number" class="form-control" id="cash-received" placeholder="Monto entregado por cliente" autocomplete="off">
-                    </div>
-                    <div class="mt-2 text-green fw-bold">Vuelto: <span id="cash-change">$0</span></div>
+                <div class="maestro-actions" style="display:flex; justify-content: flex-end; gap:10px; margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">
+                    <button id="btn-save-product" class="btn-primary" style="background:#2563eb; width:120px;">Actualizar / Grabar</button>
+                    <button class="btn-secondary btn-close-modal" style="width:100px;">Salir</button>
                 </div>
-                
-                <div class="payment-summary mt-4">
-                    <h3>Total a Pagar: <span id="payment-total-display">$0</span></h3>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary btn-close-modal">Cancelar</button>
-                <button class="btn-primary" id="btn-confirm-payment">Confirmar Pago</button>
             </div>
         </div>
     </div>
 
-    <!-- Add Client/Search Client Modal -->
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="modal-payment">
+        <div class="modal">
+            <div class="modal-header"><h2>Procesar Pago</h2><button class="btn-close-modal"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="payment-methods">
+                    <div class="method-card active" data-method="cash">Efectivo</div>
+                    <div class="method-card" data-method="letras">Letras de Cambio</div>
+                </div>
+                <div id="letras-options" class="hidden">
+                    <label>Cuotas:</label><select id="letras-n-cuotas" class="form-control"><option value="1">1 Letra</option><option value="3">3 Letras</option></select>
+                </div>
+                <div class="mt-4"><h3>Total: <span id="payment-total-display">$0</span></h3></div>
+            </div>
+            <div class="modal-footer"><button class="btn-primary" id="btn-confirm-payment">Confirmar</button></div>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
     <div class="modal-overlay" id="modal-client">
         <div class="modal">
-            <div class="modal-header">
-                <h2>Seleccionar / Nuevo Cliente</h2>
-                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header"><h2>Gestión de Clientes</h2><button class="btn-close-modal"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div class="tabs">
-                    <div class="tab active" data-tab="search">Buscar</div>
-                    <div class="tab" data-tab="new">Nuevo</div>
-                </div>
+                <div class="tabs"><div class="tab active" data-tab="search">Buscar</div><div class="tab" data-tab="new">Nuevo</div></div>
                 <div id="tab-search" class="tab-content active mt-2">
                     <input type="text" id="search-client-input" class="form-control" placeholder="RUT o Nombre...">
                     <ul class="client-list mt-2" id="client-search-results"></ul>
@@ -411,53 +265,8 @@
                 <div id="tab-new" class="tab-content mt-2 hidden">
                     <div class="form-group"><label>RUT:</label><input type="text" class="form-control" id="new-client-rut"></div>
                     <div class="form-group"><label>Nombre:</label><input type="text" class="form-control" id="new-client-name"></div>
-                    <div class="form-group"><label>Giro:</label><input type="text" class="form-control" id="new-client-giro"></div>
-                    <div class="form-group"><label>Límite Crédito:</label><input type="number" class="form-control" id="new-client-limit" value="100000"></div>
-                    <button class="btn-primary w-100 mt-2" id="btn-save-client">Guardar Cliente</button>
+                    <button class="btn-primary w-100 mt-2" id="btn-save-client">Grabar Cliente</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- New Product Modal (REDISEÑADO CON TALLA/GENERO/PROV) -->
-    <div class="modal-overlay" id="modal-product">
-        <div class="modal" style="max-width: 600px;">
-            <div class="modal-header">
-                <h2>Ingresar Nuevo Producto (ERP Maestro)</h2>
-                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group"><label>Nombre del Producto:</label><input type="text" class="form-control" id="new-prod-name"></div>
-                    <div class="form-group"><label>Código SKU / Barras:</label><input type="text" class="form-control" id="new-prod-sku"></div>
-                </div>
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label>Talla:</label>
-                        <select class="form-control" id="new-prod-talla">
-                            <option value="Unica">U (Única)</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="XXL">XXL</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Género:</label>
-                        <select class="form-control" id="new-prod-genero">
-                            <option value="Unisex">Unisex</option><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Marca:</label><input type="text" class="form-control" id="new-prod-brand"></div>
-                </div>
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group"><label>Precio Venta:</label><input type="number" class="form-control" id="new-prod-price"></div>
-                    <div class="form-group"><label>Stock Inicial:</label><input type="number" class="form-control" id="new-prod-stock" value="10"></div>
-                </div>
-                <div class="form-group">
-                    <label>Proveedor Responsable:</label>
-                    <select class="form-control" id="new-prod-prov"></select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary btn-close-modal">Cancelar</button>
-                <button class="btn-primary" id="btn-save-product">Grabar en Maestro</button>
             </div>
         </div>
     </div>
@@ -465,51 +274,31 @@
     <!-- Settings Modal -->
     <div class="modal-overlay" id="modal-settings">
         <div class="modal" style="max-width: 600px;">
-            <div class="modal-header">
-                <h2>Configuración del Sistema</h2>
-                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
-            </div>
+            <div class="modal-header"><h2>Configuración del Sistema</h2><button class="btn-close-modal"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div class="tabs">
-                    <div class="tab active" data-tab="providers">Proveedores</div>
-                    <div class="tab" data-tab="stock-adj">Ajustar Stock Gral</div>
-                </div>
-                
+                <div class="tabs"><div class="tab active" data-tab="providers">Proveedores</div><div class="tab" data-tab="stock-adj">Ajuste de Stock</div></div>
                 <div id="tab-providers" class="tab-content active mt-2">
-                    <div class="form-group">
-                        <label>Nuevo Proveedor (Distribuidor):</label>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" class="form-control" id="new-provider-name" placeholder="Nombre Proveedor">
-                            <button class="btn-primary" id="btn-save-provider">Grabar</button>
-                        </div>
-                    </div>
-                    <ul class="client-list mt-4" id="providers-list"></ul>
+                    <div style="display:flex; gap:5px;"><input type="text" id="new-provider-name" class="form-control" placeholder="Nombre Proveedor"><button class="btn-primary" id="btn-save-provider">Grabar</button></div>
+                    <ul class="client-list mt-2" id="providers-list"></ul>
                 </div>
-
                 <div id="tab-stock-adj" class="tab-content mt-2 hidden">
-                    <div class="form-group">
-                        <label>Seleccionar Producto a Actualizar:</label>
-                        <select class="form-control" id="adj-product"></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Cantidad de Stock Real:</label>
-                        <input type="number" class="form-control" id="adj-stock-qty">
-                    </div>
-                    <button class="btn-primary w-100" id="btn-save-stock-adj">Ajustar Inventario Manualmente</button>
+                    <label>Producto:</label><select id="adj-product" class="form-control"></select>
+                    <label class="mt-2">Nuevo Stock:</label><input type="number" id="adj-stock-qty" class="form-control">
+                    <button id="btn-save-stock-adj" class="btn-primary w-100 mt-4">Actualizar Stock</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- New Worker Modal -->
+    <!-- Worker Modal -->
     <div class="modal-overlay" id="modal-worker">
         <div class="modal">
-            <div class="modal-header"><h2>Añadir Cajero</h2><button class="btn-close-modal"><i class="fas fa-times"></i></button></div>
+            <div class="modal-header"><h2>Nuevo Cajero</h2><button class="btn-close-modal"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div class="form-group"><label>Nombre:</label><input type="text" class="form-control" id="new-worker-name"></div>
-                <div class="form-group"><label>PIN Acceso:</label><input type="text" class="form-control" id="new-worker-pin" placeholder="1234"></div>
+                <div class="form-group"><label>Nombre:</label><input type="text" id="new-worker-name" class="form-control"></div>
+                <div class="form-group"><label>PIN:</label><input type="text" id="new-worker-pin" class="form-control" placeholder="1234"></div>
             </div>
-            <div class="modal-footer"><button class="btn-primary w-100" id="btn-create-worker">Autorizar</button></div>
+            <div class="modal-footer"><button class="btn-primary w-100" id="btn-create-worker">Autorizar Cajero</button></div>
         </div>
     </div>
 
