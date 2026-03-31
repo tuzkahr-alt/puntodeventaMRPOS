@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar Navigation -->
@@ -47,6 +49,12 @@
                     </button>
                     <span class="tooltip">Inventario</span>
                 </li>
+                <li class="nav-item" data-target="people">
+                    <button class="nav-btn" title="Maestro Personas (Clientes/Prov)">
+                        <i class="fas fa-address-book"></i>
+                    </button>
+                    <span class="tooltip">Personas</span>
+                </li>
                 <li class="nav-item" data-target="reports">
                     <button class="nav-btn" title="Informes y Reportes">
                         <i class="fas fa-file-invoice-dollar"></i>
@@ -76,7 +84,8 @@
                 <div class="user-info">
                     <div class="search-global">
                         <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Buscar folio, cliente...">
+                        <input type="text" id="global-search" placeholder="Buscar folio, cliente...">
+                        <div id="global-search-results" class="autocomplete-dropdown hidden"></div>
                     </div>
                     <div class="time" id="clock">12:00 PM</div>
                     <div class="avatar">
@@ -87,7 +96,7 @@
 
             <!-- Views -->
             <div class="view-container">
-                
+
                 <!-- 1. DASHBOARD VIEW -->
                 <section id="dashboard" class="view">
                     <div class="kpi-grid">
@@ -99,14 +108,16 @@
                             </div>
                         </div>
                         <div class="kpi-card">
-                            <div class="kpi-icon bg-orange-light"><i class="fas fa-file-invoice-dollar text-orange"></i></div>
+                            <div class="kpi-icon bg-orange-light"><i class="fas fa-file-invoice-dollar text-orange"></i>
+                            </div>
                             <div class="kpi-data">
                                 <h3>Total por Cobrar (Cuotas)</h3>
                                 <p class="value" id="kpi-credits">$0</p>
                             </div>
                         </div>
                         <div class="kpi-card">
-                            <div class="kpi-icon bg-red-light"><i class="fas fa-exclamation-triangle text-red"></i></div>
+                            <div class="kpi-icon bg-red-light"><i class="fas fa-exclamation-triangle text-red"></i>
+                            </div>
                             <div class="kpi-data">
                                 <h3>Alertas de Stock</h3>
                                 <p class="value" id="kpi-stock">0</p>
@@ -114,7 +125,8 @@
                         </div>
                     </div>
 
-                    <div class="dashboard-widgets" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
+                    <div class="dashboard-widgets"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
                         <div class="widget">
                             <div class="widget-header">
                                 <h2>Top 5 Productos Más Vendidos</h2>
@@ -155,7 +167,8 @@
                         <div class="pos-products">
                             <div class="search-bar-modern">
                                 <i class="fas fa-barcode"></i>
-                                <input type="text" id="pos-search" placeholder="Escanear código o buscar producto..." autocomplete="off">
+                                <input type="text" id="pos-search" placeholder="Escanear código o buscar producto..."
+                                    autocomplete="off">
                                 <div id="pos-search-results" class="autocomplete-dropdown hidden"></div>
                             </div>
                             <div class="product-grid" id="pos-product-grid">
@@ -167,16 +180,19 @@
                         <div class="pos-cart">
                             <div class="cart-header">
                                 <h2>Orden Actual</h2>
-                                <button class="btn-text" id="btn-clear-cart"><i class="fas fa-trash"></i> Limpiar</button>
+                                <button class="btn-text" id="btn-clear-cart"><i class="fas fa-trash"></i>
+                                    Limpiar</button>
                             </div>
-                            
+
                             <!-- Cliente Section -->
                             <div class="client-selector">
                                 <div class="client-info" id="selected-client">
                                     <i class="fas fa-user-circle"></i> Mostrar Cliente General
                                 </div>
-                                <button class="btn-icon" id="btn-search-client" title="Buscar Cliente"><i class="fas fa-search"></i></button>
-                                <button class="btn-icon" id="btn-add-client" title="Nuevo Cliente"><i class="fas fa-user-plus"></i></button>
+                                <button class="btn-icon" id="btn-search-client" title="Buscar Cliente"><i
+                                        class="fas fa-search"></i></button>
+                                <button class="btn-icon" id="btn-add-client" title="Nuevo Cliente"><i
+                                        class="fas fa-user-plus"></i></button>
                             </div>
 
                             <div class="cart-items" id="cart-items">
@@ -234,26 +250,55 @@
                     </div>
                 </section>
 
-                 <!-- 4. INVENTORY VIEW -->
-                 <section id="inventory" class="view">
+                <!-- 4. INVENTORY VIEW -->
+                <section id="inventory" class="view">
                     <div class="widget">
                         <div class="widget-header">
-                            <h2>Gestión de Inventario (Variantes)</h2>
-                            <button class="btn-primary" id="btn-open-new-product"><i class="fas fa-plus"></i> Nuevo Producto</button>
+                            <h2>Gestión de Inventario (Maestro de Productos)</h2>
+                            <button class="btn-primary" id="btn-open-new-product"><i class="fas fa-plus"></i> Nuevo
+                                Producto</button>
                         </div>
                         <div class="table-responsive">
                             <table class="datagrid" id="table-inventory">
                                 <thead>
                                     <tr>
-                                        <th>SKU</th>
-                                        <th>Nombre</th>
-                                        <th>Variantes (Talla/Color)</th>
-                                        <th>Precio</th>
-                                        <th>Stock Total</th>
+                                        <th>Cód/SKU</th>
+                                        <th>Descripción</th>
+                                        <th>Categoría/Flia</th>
+                                        <th>Precio Vta</th>
+                                        <th>Stock Act.</th>
+                                        <th>Estado</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="inventory-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4.5 PEOPLE VIEW (MAESTRO PERSONAS) -->
+                <section id="people" class="view">
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h2>Maestro de Personas (Clientes, Proveedores, Empleados)</h2>
+                            <button class="btn-primary" id="btn-open-new-person"><i class="fas fa-user-plus"></i> Nueva Persona</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="datagrid" id="table-people">
+                                <thead>
+                                    <tr>
+                                        <th>RUT</th>
+                                        <th>Nombre / Razón Social</th>
+                                        <th>Giro / Actividad</th>
+                                        <th>Teléfono / Email</th>
+                                        <th>Roles</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="people-body">
                                 </tbody>
                             </table>
                         </div>
@@ -265,7 +310,8 @@
                     <div class="widget">
                         <div class="widget-header">
                             <h2>Gestión de Cajeros (Inventarios Aislados)</h2>
-                            <button class="btn-primary" id="btn-new-worker"><i class="fas fa-user-plus"></i> Agregar Cajero</button>
+                            <button class="btn-primary" id="btn-new-worker"><i class="fas fa-user-plus"></i> Agregar
+                                Cajero</button>
                         </div>
                         <div class="table-responsive">
                             <table class="datagrid" id="table-workers">
@@ -298,13 +344,17 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="kpi-card" style="flex:1; display:flex; gap:1rem; align-items:center; justify-content:center;">
-                            <button class="btn-primary" id="btn-export-pdf" style="background:#e3342f;"><i class="fas fa-file-pdf"></i> PDF</button>
-                            <button class="btn-primary" id="btn-export-excel" style="background:#38c172;"><i class="fas fa-file-excel"></i> Excel (CSV)</button>
-                            <button class="btn-action bg-blue" id="btn-generate-report"><i class="fas fa-sync-alt"></i> Generar</button>
+                        <div class="kpi-card"
+                            style="flex:1; display:flex; gap:1rem; align-items:center; justify-content:center;">
+                            <button class="btn-primary" id="btn-export-pdf" style="background:#e3342f;"><i
+                                    class="fas fa-file-pdf"></i> PDF</button>
+                            <button class="btn-primary" id="btn-export-excel" style="background:#38c172;"><i
+                                    class="fas fa-file-excel"></i> Excel (CSV)</button>
+                            <button class="btn-action bg-blue" id="btn-generate-report"><i class="fas fa-sync-alt"></i>
+                                Generar</button>
                         </div>
                     </div>
-                    
+
                     <div class="widget">
                         <div class="widget-header">
                             <h2 id="report-title">Vista Previa del Informe</h2>
@@ -318,6 +368,25 @@
                                     <!-- Dynamic -->
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-widgets mt-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h2>Resumen de Caja Diario (Ventas)</h2>
+                            </div>
+                            <div style="height: 300px;">
+                                <canvas id="chartDaily"></canvas>
+                            </div>
+                        </div>
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h2>Resumen de Venta Semanal</h2>
+                            </div>
+                            <div style="height: 300px;">
+                                <canvas id="chartWeekly"></canvas>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -361,20 +430,22 @@
                         </select>
                     </div>
                     <div class="credit-warning hidden" id="credit-warning">
-                        <i class="fas fa-exclamation-circle"></i> Cliente superará su límite de crédito o tiene 3+ cuotas vencidas.
+                        <i class="fas fa-exclamation-circle"></i> Cliente superará su límite de crédito o tiene 3+
+                        cuotas vencidas.
                     </div>
                 </div>
 
                 <div id="cash-options" class="mt-4">
                     <div class="form-group">
                         <label>Efectivo Recibido (Presiona ENTER para vender):</label>
-                        <input type="number" class="form-control" id="cash-received" placeholder="Monto entregado por cliente" autocomplete="off">
+                        <input type="number" class="form-control" id="cash-received"
+                            placeholder="Monto entregado por cliente" autocomplete="off">
                     </div>
                     <div class="mt-2 text-green fw-bold">
                         Vuelto Estimado a Entregar: <span id="cash-change" style="font-size: 1.2rem;">$0</span>
                     </div>
                 </div>
-                
+
                 <div class="payment-summary mt-4">
                     <h3>Total a Pagar: <span id="payment-total-display">$0</span></h3>
                 </div>
@@ -398,7 +469,7 @@
                     <div class="tab active" data-tab="search">Buscar</div>
                     <div class="tab" data-tab="new">Nuevo</div>
                 </div>
-                
+
                 <div id="tab-search" class="tab-content active mt-2">
                     <input type="text" id="search-client-input" class="form-control" placeholder="RUT o Nombre...">
                     <ul class="client-list mt-2" id="client-search-results">
@@ -429,79 +500,313 @@
         </div>
     </div>
 
-    <!-- New Product Modal -->
+    <!-- New/Edit Product Modal (Complex ERP Form) -->
     <div class="modal-overlay" id="modal-product">
-        <div class="modal">
+        <div class="modal" style="max-width: 800px; width: 95%;">
             <div class="modal-header">
-                <h2>Ingresar Nuevo Producto</h2>
-                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Nombre del Producto:</label>
-                    <input type="text" class="form-control" id="new-prod-name">
-                </div>
-                <div class="form-group">
-                    <label>Código SKU / Barras:</label>
-                    <input type="text" class="form-control" id="new-prod-sku">
-                </div>
-                <div class="form-group">
-                    <label>Precio Unitario:</label>
-                    <input type="number" class="form-control" id="new-prod-price">
-                </div>
-                <div class="form-group">
-                    <label>Stock Físico (Bodega del Cajero):</label>
-                    <input type="number" class="form-control" id="new-prod-stock" value="10">
-                </div>
-                <div class="form-group">
-                    <label>Marca:</label>
-                    <input type="text" class="form-control" id="new-prod-brand">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary btn-close-modal">Cancelar</button>
-                <button class="btn-primary" id="btn-save-product">Guardar Producto</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="modal-settings">
-        <div class="modal" style="max-width: 600px;">
-            <div class="modal-header">
-                <h2>Configuración del Sistema</h2>
+                <h2>Maestros: Gestión de Artículo</h2>
                 <button class="btn-close-modal"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="tabs">
-                    <div class="tab active" data-tab="providers">Proveedores</div>
-                    <div class="tab" data-tab="stock-adj">Ajustar Stock Gral</div>
-                </div>
-                
-                <div id="tab-providers" class="tab-content active mt-2">
-                    <div class="form-group">
-                        <label>Nuevo Proveedor (Distribuidor):</label>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" class="form-control" id="new-provider-name" placeholder="Ej: Coca-Cola Andina">
-                            <button class="btn-primary" id="btn-save-provider">Grabar</button>
-                        </div>
-                    </div>
-                    <ul class="client-list mt-4" id="providers-list">
-                    </ul>
+                    <div class="tab active" data-tab="prod-base">Básico / Identificación</div>
+                    <div class="tab" data-tab="prod-prices">Precios / Ofertas</div>
+                    <div class="tab" data-tab="prod-stock">Stock / Impuestos</div>
                 </div>
 
-                <div id="tab-stock-adj" class="tab-content mt-2 hidden">
-                    <p class="text-orange"><i class="fas fa-exclamation-triangle"></i> Reemplazo de inventario (Stock físico).</p>
-                    <div class="form-group">
-                        <label>Seleccionar Producto a Actualizar:</label>
-                        <select class="form-control" id="adj-product"></select>
+                <div id="tab-prod-base" class="tab-content active mt-2">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Código PK / Barcode:</label>
+                            <input type="text" class="form-control" id="new-prod-sku" placeholder="EAW-1234">
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción Comercial:</label>
+                            <input type="text" class="form-control" id="new-prod-name">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Categoría/Depto:</label>
+                            <select class="form-control" id="new-prod-cat"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Familia:</label>
+                            <select class="form-control" id="new-prod-fam"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Producto:</label>
+                            <select class="form-control" id="new-prod-type">
+                                <option value="Venta">Mercadería Venta</option>
+                                <option value="Insumo">Insumo Interno</option>
+                                <option value="Servicio">Servicio</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Cantidad de Stock Real:</label>
-                        <input type="number" class="form-control" id="adj-stock-qty">
+                        <label>Observaciones Administrativas:</label>
+                        <textarea class="form-control" id="new-prod-obs" rows="2"></textarea>
                     </div>
-                    <button class="btn-primary w-100" id="btn-save-stock-adj">Ajustar Inventario Manualmente</button>
                 </div>
+
+                <div id="tab-prod-prices" class="tab-content mt-2 hidden">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Precio Venta (Publico):</label>
+                            <input type="number" class="form-control" id="new-prod-price" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Margen Utilidad %:</label>
+                            <input type="number" class="form-control" id="new-prod-margin" value="30">
+                        </div>
+                        <div class="form-group">
+                            <label>Impuesto Adic. (ILA, etc):</label>
+                            <input type="number" class="form-control" id="new-prod-taxadd" value="0">
+                        </div>
+                    </div>
+                    <div class="widget" style="padding: 1rem; background: #fffbeb; border: 1px solid #fde68a;">
+                        <h4 style="margin-bottom: 1rem; color: #92400e;"><i class="fas fa-percentage"></i> Campaña de Oferta</h4>
+                        <div style="display: grid; grid-template-columns: 1.5fr 1fr 1.5fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Cod. Oferta:</label>
+                                <input type="text" class="form-control" id="new-prod-off-name" placeholder="VERANO-2026">
+                            </div>
+                            <div class="form-group">
+                                <label>Unid x Oferta:</label>
+                                <input type="number" class="form-control" id="new-prod-off-qty" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Precio Oferta $:</label>
+                                <input type="number" class="form-control" id="new-prod-off-price" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-prod-stock" class="tab-content mt-2 hidden">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Unid/Venta:</label>
+                            <input type="text" class="form-control" id="new-prod-unitv" value="UN">
+                        </div>
+                        <div class="form-group">
+                            <label>Unid/Caja (Factor):</label>
+                            <input type="number" class="form-control" id="new-prod-unitc" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Crítico (Alerta):</label>
+                            <input type="number" class="form-control" id="new-prod-stockc" value="5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Actual (Carga Inicial/Ajuste):</label>
+                        <input type="number" class="form-control" id="new-prod-stock" value="0">
+                    </div>
+                    <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="new-prod-active" checked> Artículo Activo
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="new-prod-iva" checked> Aplica IVA (19%)
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="new-prod-pack"> Es Pack/Compuesto
+                        </label>
+                    </div>
+                    <div class="mt-4">
+                        <button class="btn-secondary w-100" id="btn-prod-nutritional"><i class="fas fa-utensils"></i> Especificaciones Técnicas / Nutricional</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-close-modal">Cerrar</button>
+                <button class="btn-primary" id="btn-save-product">Guardar Cambios Maestro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maestro Personas Modal -->
+    <div class="modal-overlay" id="modal-person">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>Gestión de Maestro: Personas</h2>
+                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>RUT / ID:</label>
+                        <input type="text" class="form-control" id="p-rut" placeholder="11.111.111-1">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre / Razón Social:</label>
+                        <input type="text" class="form-control" id="p-name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Giro / Actividad:</label>
+                    <input type="text" class="form-control" id="p-giro">
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Dirección:</label>
+                        <input type="text" class="form-control" id="p-address">
+                    </div>
+                    <div class="form-group">
+                        <label>Comuna:</label>
+                        <input type="text" class="form-control" id="p-commune">
+                    </div>
+                    <div class="form-group">
+                        <label>Ciudad:</label>
+                        <input type="text" class="form-control" id="p-city">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Teléfono:</label>
+                        <input type="text" class="form-control" id="p-phone">
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail:</label>
+                        <input type="email" class="form-control" id="p-email">
+                    </div>
+                    <div class="form-group">
+                        <label>Límite Crédito:</label>
+                        <input type="number" class="form-control" id="p-limit" value="0">
+                    </div>
+                </div>
+                <div class="widget" style="padding: 1rem; background: #f1f5f9;">
+                    <label style="font-weight: 700; margin-bottom: 0.5rem; display: block;">Roles y Permisos:</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label class="checkbox-container"><input type="checkbox" id="p-client" checked> Cliente</label>
+                        <label class="checkbox-container"><input type="checkbox" id="p-provider"> Proveedor</label>
+                        <label class="checkbox-container"><input type="checkbox" id="p-employee"> Empleado</label>
+                        <label class="checkbox-container" style="color: var(--danger);"><input type="checkbox" id="p-blocked"> Bloqueado</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-close-modal">Cancelar</button>
+                <button class="btn-primary" id="btn-save-person">Grabar Persona</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings & Business Config Modal -->
+    <div class="modal-overlay" id="modal-settings">
+        <div class="modal" style="max-width: 800px; width: 95%;">
+            <div class="modal-header">
+                <h2>Configuración y Parámetros del Sistema</h2>
+                <button class="btn-close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <div class="tab active" data-tab="set-company">Datos Empresa</div>
+                    <div class="tab" data-tab="set-pos">Parámetros POS</div>
+                    <div class="tab" data-tab="set-peripherals">Periféricos</div>
+                    <div class="tab" data-tab="set-inventory">Inventario</div>
+                </div>
+
+                <!-- Tab Empresa -->
+                <div id="tab-set-company" class="tab-content active mt-2">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>RUT Empresa:</label>
+                            <input type="text" class="form-control" id="set-com-rut">
+                        </div>
+                        <div class="form-group">
+                            <label>Razón Social:</label>
+                            <input type="text" class="form-control" id="set-com-name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Fantasía:</label>
+                        <input type="text" class="form-control" id="set-com-fantasy">
+                    </div>
+                    <div class="form-group">
+                        <label>Giro Comercial:</label>
+                        <input type="text" class="form-control" id="set-com-giro">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Dirección:</label>
+                            <input type="text" class="form-control" id="set-com-address">
+                        </div>
+                        <div class="form-group">
+                            <label>Comuna:</label>
+                            <input type="text" class="form-control" id="set-com-commune">
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad:</label>
+                            <input type="text" class="form-control" id="set-com-city">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab POS -->
+                <div id="tab-set-pos" class="tab-content mt-2 hidden">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Nº de Terminal (POS):</label>
+                            <input type="number" class="form-control" id="set-pos-num">
+                        </div>
+                        <div class="form-group">
+                            <label>Dirección IP Local:</label>
+                            <input type="text" class="form-control" id="set-pos-ip">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ruta Base de Datos / SQL:</label>
+                        <input type="text" class="form-control" id="set-pos-path">
+                    </div>
+                    <div class="form-group">
+                        <label>Ruta Respaldo / Backups:</label>
+                        <input type="text" class="form-control" id="set-pos-backup">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <label class="checkbox-container"><input type="checkbox" id="set-pos-sinc-tx"> Tx (Sinc. Cambios)</label>
+                        <label class="checkbox-container"><input type="checkbox" id="set-pos-sinc-rx"> Rx (Recibir Ventas)</label>
+                        <label class="checkbox-container"><input type="checkbox" id="set-pos-nostock"> No permitir vta s/stock</label>
+                        <label class="checkbox-container"><input type="checkbox" id="set-pos-pass"> Pedir Pass para Dsctos</label>
+                    </div>
+                </div>
+
+                <!-- Tab Perifericos -->
+                <div id="tab-set-peripherals" class="tab-content mt-2 hidden">
+                    <div class="widget" style="padding: 1rem;">
+                        <h4>Impresora Fiscal / Térmica</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem;">
+                            <div class="form-group"><label>Puerto:</label><select class="form-control" id="set-prn-port"><option>LPT1</option><option>COM1</option><option>USB</option></select></div>
+                            <div class="form-group"><label>Velocidad:</label><select class="form-control" id="set-prn-baud"><option>9600</option><option>19200</option></select></div>
+                            <div class="form-group"><label>Paridad:</label><select class="form-control" id="set-prn-parity"><option>None</option><option>Even</option></select></div>
+                            <div class="form-group"><label>Bits:</label><select class="form-control" id="set-prn-bits"><option>8</option><option>7</option></select></div>
+                        </div>
+                    </div>
+                    <div class="widget" style="padding: 1rem; margin-top: 1rem;">
+                        <h4>Escáner / Gaveta</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <label class="checkbox-container"><input type="checkbox" id="set-gav-enabled"> Gaveta Habilitada</label>
+                            <select class="form-control" id="set-gav-port"><option>LPT1</option><option>COM1</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Inventario -->
+                <div id="tab-set-inventory" class="tab-content mt-2 hidden">
+                    <div class="form-group">
+                        <label>Actualizar Stock (Ajuste Rápido):</label>
+                        <select class="form-control" id="set-adj-prod"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nuevo Stock Físico:</label>
+                        <input type="number" class="form-control" id="set-adj-qty">
+                    </div>
+                    <button class="btn-primary w-100" id="btn-save-stock-adj">Ejecutar Ajuste de Inventario</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-close-modal">Cerrar</button>
+                <button class="btn-primary" id="btn-save-all-settings">Grabar Configuración General</button>
             </div>
         </div>
     </div>
@@ -514,7 +819,8 @@
                 <button class="btn-close-modal"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <p>Cada cajero tendrá una base de datos de inventario completamente limpia y separada (Instancia propia).</p>
+                <p>Cada cajero tendrá una base de datos de inventario completamente limpia y separada (Instancia
+                    propia).</p>
                 <div class="form-group mt-2">
                     <label>Nombre del Trabajador:</label>
                     <input type="text" class="form-control" id="new-worker-name">
@@ -533,4 +839,5 @@
     <script src="js/db.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>

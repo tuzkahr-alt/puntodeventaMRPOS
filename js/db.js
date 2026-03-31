@@ -25,8 +25,28 @@ const generateGroceries = () => {
     items.forEach((it, i) => {
         const brand = brands[Math.floor(Math.random() * brands.length)];
         prods.push({
-            id: generateId(), sku: 'CHI-' + (1000 + i), name: `${it.n} ${brand}`,
-            price: it.p, brand: brand, stock: Math.floor(Math.random() * 50) + 10, variants: null
+            id: generateId(), 
+            sku: 'CHI-' + (1000 + i), 
+            name: `${it.n} ${brand}`,
+            price: it.p, 
+            brand: brand, 
+            stock: Math.floor(Math.random() * 50) + 10,
+            stockCrit: 5,
+            categoryId: 1,
+            familyId: 1,
+            type: 'Venta',
+            observations: '',
+            taxAdd: 0,
+            unitSale: 'UN',
+            unitBox: 1,
+            active: true,
+            hasIva: true,
+            isPack: false,
+            margin: 30,
+            offerName: '',
+            offerMinQty: 0,
+            offerPrice: 0,
+            nutritional: null
         });
     });
     return prods;
@@ -34,28 +54,54 @@ const generateGroceries = () => {
 
 const INITIAL_DATA = {
     products: generateGroceries(),
-    clients: [
-        { id: generateId(), rut: '11.111.111-1', name: 'Juan Ignacio Pérez', giro: 'Particular', limit_credit: 150000, debt: 45000 },
-        { id: generateId(), rut: '22.222.222-2', name: 'Comercial La Florida SpA', giro: 'Retail', limit_credit: 500000, debt: 0 },
-        { id: generateId(), rut: '15.345.678-K', name: 'María González López', giro: 'Particular', limit_credit: 100000, debt: 0 },
-        { id: generateId(), rut: '09.876.543-2', name: 'Constructora Eloísa Ltda.', giro: 'Construcción', limit_credit: 1500000, debt: 250000 },
-        { id: generateId(), rut: '18.123.456-7', name: 'Carlos Díaz Valdés', giro: 'Particular', limit_credit: 80000, debt: 75000 },
-        { id: generateId(), rut: '12.987.654-3', name: 'Minimarket El Sol', giro: 'Comercio', limit_credit: 300000, debt: 15000 },
-        { id: generateId(), rut: '19.456.789-0', name: 'Ana Silva Mendoza', giro: 'Particular', limit_credit: 120000, debt: 0 },
-        { id: generateId(), rut: '76.543.210-9', name: 'Panadería San Juan EIRL', giro: 'Panadería', limit_credit: 800000, debt: 0 },
-        { id: generateId(), rut: '14.222.333-5', name: 'Pedro Morales Rojas', giro: 'Particular', limit_credit: 50000, debt: 65000 },
-        { id: generateId(), rut: '17.654.321-4', name: 'Camila Soto Figueroa', giro: 'Particular', limit_credit: 200000, debt: 0 }
+    categories: [
+        { id: 1, name: 'ABARROTES', printer: 'LPT1', printReport: true },
+        { id: 2, name: 'BEBIDAS', printer: 'LPT1', printReport: true },
+        { id: 3, name: 'LACTEOS', printer: 'LPT1', printReport: true }
+    ],
+    families: [
+        { id: 1, name: 'ACEITES', categoryId: 1 },
+        { id: 2, name: 'ARROCES', categoryId: 1 },
+        { id: 3, name: 'GASEOSAS', categoryId: 2 }
+    ],
+    people: [
+        { id: generateId(), rut: '11.111.111-1', name: 'Juan Ignacio Pérez', giro: 'Particular', address: 'Av. Siempre Viva 123', commune: 'Santiago', city: 'Santiago', phone: '+56912345678', email: 'juan@email.com', contact: 'Juan', isBlocked: false, isProvider: false, isClient: true, isEmployee: false, limit_credit: 150000, debt: 45000 },
+        { id: generateId(), rut: '76.543.210-9', name: 'Distribuidora Central SpA', giro: 'Distribución', address: 'Calle Industrial 45', commune: 'Quilicura', city: 'Santiago', phone: '+5622334455', email: 'contacto@central.cl', contact: 'Marta Sol', isBlocked: false, isProvider: true, isClient: false, isEmployee: false, limit_credit: 0, debt: 0 }
     ],
     sales: [],
+    purchases: [],
     quotas: [],
+    creditMovements: [],
     cart: [],
     currentClient: null,
     workers: [
         { id: 'admin', name: 'Administrador Principal', pin: '1234' }
     ],
-    providers: [
-        { id: generateId(), name: 'Distribuidora Central' }
-    ]
+    companyData: {
+        rut: '77.777.777-7',
+        name: 'MRPOS ERP SOLUTIONS',
+        fantasyName: 'WWW.MRPOS.CL',
+        giro: 'SOPORTE INFORMÁTICO',
+        address: 'AV. NUEVA PROVIDENCIA 123',
+        commune: 'PROVIDENCIA',
+        city: 'SANTIAGO'
+    },
+    posConfig: {
+        posNum: 1,
+        ip: '192.168.1.50',
+        dbPath: 'C:\\MRPOS\\DATABASE',
+        backupPath: 'D:\\BACKUPS',
+        sincTx: true,
+        sincRx: true,
+        noSalesWithoutStock: false,
+        askPassForDiscount: true,
+        askPassForDelete: true
+    },
+    peripherals: {
+        printer: { port: 'LPT1', baudRate: 9600, parity: 'None', dataBits: 8 },
+        scanner: { port: 'COM1', baudRate: 9600, parity: 'None', dataBits: 8 },
+        drawer: { enabled: true, port: 'LPT1' }
+    }
 };
 
 class Database {
@@ -70,8 +116,15 @@ class Database {
         const data = localStorage.getItem(this.storageKey);
         if (data) {
             this.data = JSON.parse(data);
-            if(!this.data.workers) this.data.workers = [{id: 'admin', name: 'Admin', pin: '1234'}];
-            if(!this.data.providers) this.data.providers = [];
+            // Ensure new tables exist in case of update
+            if(!this.data.categories) this.data.categories = INITIAL_DATA.categories;
+            if(!this.data.families) this.data.families = INITIAL_DATA.families;
+            if(!this.data.people) this.data.people = INITIAL_DATA.people;
+            if(!this.data.purchases) this.data.purchases = [];
+            if(!this.data.companyData) this.data.companyData = INITIAL_DATA.companyData;
+            if(!this.data.posConfig) this.data.posConfig = INITIAL_DATA.posConfig;
+            if(!this.data.creditMovements) this.data.creditMovements = [];
+            if(!this.data.peripherals) this.data.peripherals = INITIAL_DATA.peripherals;
         } else {
             this.data = JSON.parse(JSON.stringify(INITIAL_DATA));
             this.save();
@@ -95,51 +148,53 @@ class Database {
     }
 
     addProduct(prod) {
-        const newProd = { id: generateId(), variants: null, ...prod };
+        const newProd = { id: generateId(), ...prod };
         this.data.products.push(newProd);
         this.save();
         return newProd;
     }
 
-    // Providers & Workers
-    addWorker(worker) {
-        this.data.workers.push({ id: generateId(), ...worker });
-        this.save();
-    }
-    
-    addProvider(prov) {
-        this.data.providers.push({ id: generateId(), ...prov });
+    // Categorias & Familias
+    addCategory(cat) {
+        this.data.categories.push({ id: this.data.categories.length + 1, ...cat });
         this.save();
     }
 
-    // Clients
-    getClients(query = '') {
-        if (!query) return this.data.clients;
+    addFamily(fam) {
+        this.data.families.push({ id: this.data.families.length + 1, ...fam });
+        this.save();
+    }
+
+    // People (Unified Clients/Providers)
+    getPeople(query = '', type = '') {
+        let list = this.data.people;
+        if (type === 'client') list = list.filter(p => p.isClient);
+        if (type === 'provider') list = list.filter(p => p.isProvider);
+        if (type === 'employee') list = list.filter(p => p.isEmployee);
+        
+        if (!query) return list;
         query = query.toLowerCase();
-        return this.data.clients.filter(c => c.name.toLowerCase().includes(query) || c.rut.includes(query));
+        return list.filter(p => p.name.toLowerCase().includes(query) || p.rut.includes(query));
     }
 
-    addClient(client) {
-        const newClient = { id: generateId(), debt: 0, ...client };
-        this.data.clients.push(newClient);
+    addPerson(person) {
+        const newPerson = { id: generateId(), debt: 0, ...person };
+        this.data.people.push(newPerson);
         this.save();
-        return newClient;
+        return newPerson;
     }
 
-    validateCredit(clientId, amount) {
-        const client = this.data.clients.find(c => c.id === clientId);
-        if (!client) return { valid: false, reason: 'Cliente no seleccionado' };
-        if ((client.debt + amount) > client.limit_credit) {
-            return { valid: false, reason: `Supera límite de crédito asignado ($${client.limit_credit.toLocaleString('es-CL')})` };
+    validateCredit(personId, amount) {
+        const person = this.data.people.find(p => p.id === personId);
+        if (!person) return { valid: false, reason: 'Persona no seleccionada' };
+        if ((person.debt + amount) > person.limit_credit) {
+            return { valid: false, reason: `Supera límite de crédito (${person.limit_credit})` };
         }
-        const moras = this.data.quotas.filter(q => q.clientId === clientId && q.status === 'mora');
-        if (moras.length >= 3) {
-            return { valid: false, reason: 'El cliente tiene 3 o más cuotas en mora.' };
-        }
+        if (person.isBlocked) return { valid: false, reason: 'El cliente está BLOQUEADO para crédito.' };
         return { valid: true };
     }
 
-    // Cart
+    // Cart ... (Keeping same)
     addToCart(product) {
         const existing = this.data.cart.find(item => item.id === product.id);
         if (existing) {
@@ -169,20 +224,20 @@ class Database {
         this.save();
     }
 
-    // Sales
+    // Sales & Credits
     registerSale(paymentMethod, isPresale, creditParams = null) {
         if (this.data.cart.length === 0) return false;
 
         const total = this.data.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const sale = {
-            id: 'V-00' + (this.data.sales.length + 3),
+            id: 'V-' + (this.data.sales.length + 100).toString().padStart(4, '0'),
             date: new Date().toISOString(),
-            clientId: this.data.currentClient ? this.data.currentClient.id : 'General',
+            personId: this.data.currentClient ? this.data.currentClient.id : 'General',
             cashier: this.activeCashierInfo ? JSON.parse(this.activeCashierInfo).name : 'Admin',
             total: total,
             method: paymentMethod,
             status: isPresale ? 'preventa' : 'finalizada',
-            items: [...this.data.cart] // Clonar
+            items: [...this.data.cart]
         };
 
         this.data.cart.forEach(cartItem => {
@@ -190,29 +245,41 @@ class Database {
             if(prod) prod.stock -= cartItem.qty;
         });
 
-        if (paymentMethod === 'credit' && creditParams && this.data.currentClient) {
-            const client = this.data.clients.find(c => c.id === this.data.currentClient.id);
-            client.debt += total;
+        if (paymentMethod === 'credit' && this.data.currentClient) {
+            const person = this.data.people.find(p => p.id === this.data.currentClient.id);
+            person.debt += total;
 
-            const cuotaAmount = Math.round(total / creditParams.installments);
-            
-            for (let i = 1; i <= creditParams.installments; i++) {
-                let dueDate = new Date();
-                dueDate.setMonth(dueDate.getMonth() + i);
+            // Log movement
+            this.data.creditMovements.push({
+                id: generateId(),
+                personId: person.id,
+                rut: person.rut,
+                type: 'Venta',
+                number: sale.id,
+                date: sale.date,
+                charge: total,
+                credit: 0,
+                balance: person.debt
+            });
 
-                this.data.quotas.push({
-                    id: generateId(),
-                    clientId: client.id,
-                    clientName: client.name,
-                    clientRut: client.rut,
-                    saleId: sale.id,
-                    num_quota: i,
-                    total_quotas: creditParams.installments,
-                    amount: cuotaAmount,
-                    dueDate: dueDate.toISOString().split('T')[0],
-                    status: 'pendiente',
-                    interest: 0
-                });
+            if (creditParams) {
+                const cuotaAmount = Math.round(total / creditParams.installments);
+                for (let i = 1; i <= creditParams.installments; i++) {
+                    let dueDate = new Date();
+                    dueDate.setMonth(dueDate.getMonth() + i);
+                    this.data.quotas.push({
+                        id: generateId(),
+                        personId: person.id,
+                        personName: person.name,
+                        personRut: person.rut,
+                        saleId: sale.id,
+                        num_quota: i,
+                        total_quotas: creditParams.installments,
+                        amount: cuotaAmount,
+                        dueDate: dueDate.toISOString().split('T')[0],
+                        status: 'pendiente'
+                    });
+                }
             }
         }
 
